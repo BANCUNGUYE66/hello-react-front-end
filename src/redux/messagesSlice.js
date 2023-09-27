@@ -8,7 +8,7 @@ const initialState = {
 export const fetchMessage = createAsyncThunk('message/fetchMessage', async () => {
   const response = await fetch('http://localhost:3000/random_greeting');
   const data = await response.json();
-  return data;
+  return data.greeting; // Update to extract the greeting from the response
 });
 
 const messagesSlice = createSlice({
@@ -19,15 +19,14 @@ const messagesSlice = createSlice({
     builder.addCase(fetchMessage.pending, (state) => {
       state.isLoading = true;
     });
-    builder.addCase(fetchMessage.fulfilled, (state, action) => ({
-      ...state,
-      message: action.payload.greeting,
-      isLoading: false,
-    }));
-    builder.addCase(fetchMessage.rejected, (state) => ({
-      ...state,
-      isLoading: false,
-    }));
+    builder.addCase(fetchMessage.fulfilled, (state, action) => {
+      state.message = action.payload;
+      state.isLoading = false;
+    });
+    builder.addCase(fetchMessage.rejected, (state) => {
+      state.isLoading = false;
+    });
   },
 });
+
 export default messagesSlice.reducer;
